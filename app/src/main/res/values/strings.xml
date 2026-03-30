@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- App -->
+    <string name="app_name">我的收音機</string>
+
+    <!-- Main screen -->
+    <string name="search_hint">搜尋串流…</string>
+    <string name="no_streams_found">找不到串流</string>
+    <string name="fab_add_stream">新增串流</string>
+
+    <!-- Stream list item -->
+    <string name="label_video">影片</string>
+    <string name="label_audio">音訊</string>
+    <string name="btn_play_desc">播放</string>
+    <string name="btn_delete_desc">刪除串流</string>
+
+    <!-- Add stream dialog -->
+    <string name="dialog_add_title">新增自訂串流</string>
+    <string name="hint_stream_title">串流名稱（選填）</string>
+    <string name="hint_stream_url">串流網址（HLS、DASH、MP3、MP4…）</string>
+    <string name="label_stream_type">串流類型</string>
+    <string name="btn_video_type">🎬 影片</string>
+    <string name="btn_audio_type">🎵 音訊</string>
+    <string name="btn_play">播放</string>
+    <string name="btn_cancel">取消</string>
+    <string name="error_url_empty">請輸入網址</string>
+    <string name="default_stream_title">自訂串流</string>
+    <string name="custom_stream_desc">自訂串流</string>
+
+    <!-- Delete dialog -->
+    <string name="dialog_delete_title">移除串流？</string>
+    <string name="dialog_delete_message">「%1$s」將從清單中移除。</string>
+    <string name="btn_remove">移除</string>
+    <string name="toast_removed">「%1$s」已移除</string>
+
+    <!-- Player -->
+    <string name="status_connecting">⏳ 連線中…</string>
+    <string name="status_buffering">⏳ 緩衝中…</string>
+    <string name="status_playing">▶ 播放中</string>
+    <string name="status_paused">⏸ 已暫停</string>
+    <string name="status_ended">⏹ 播放結束</string>
+    <string name="status_idle">⏺ 閒置</string>
+    <string name="status_error">❌ 錯誤</string>
+    <string name="error_playback">播放錯誤：%1$s</string>
+    <string name="btn_back_desc">返回</string>
+    <string name="btn_pip_desc">子母畫面</string>
+
+    <!-- Player controls -->
+    <string name="btn_rewind_desc">倒退</string>
+    <string name="btn_play_pause_desc">播放／暫停</string>
+    <string name="btn_forward_desc">快進</string>
+
+    <string name="fab_import_stream">匯入串流</string>
+    <string name="import_success">已匯入 %1$d 個串流</string>
+    <string name="import_empty">未找到有效的串流資料</string>
+    <string name="import_error">讀取檔案時發生錯誤</string>
+    <string name="import_format_note">CSV 格式：類型,標題,網址（A=音訊，V=影片）</string>
+
+    <string name="dialog_import_title">匯入串流清單</string>
+    <string name="import_source_file">從本機檔案</string>
+    <string name="import_source_url">從網路網址</string>
+    <string name="import_url_hint">輸入 CSV 檔案網址</string>
+    <string name="import_downloading">下載中…</string>
+    <string name="btn_import">匯入</string>
+
+    <string name="seed_desc_bbb">開源動畫短片 · HLS 串流</string>
+    <string name="seed_desc_classical">SomaFM – Drone Zone · 環境/古典音樂</string>
+
+    <string name="error_service_connect">無法連線至播放服務</string>
+
+    <string name="fab_last_stream">播放上次串流</string>
+    <string name="toast_no_last_stream">尚無播放記錄</string>
+
+    <string name="fab_remove_all">刪除全部</string>
+    <string name="dialog_remove_all_title">刪除全部串流？</string>
+    <string name="dialog_remove_all_message">清單中所有串流將被永久刪除。</string>
+    <string name="toast_all_removed">已刪除全部串流</string>
+
+    <string name="menu_desc">更多選項</string>
+
+    <string name="notif_channel_name">媒體播放</string>
+    <string name="notif_channel_desc">串流播放通知</string>
+    <string name="notif_playback_ready">準備播放</string>
+</resources>

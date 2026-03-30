@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- App -->
+    <string name="app_name">my-radio</string>
+
+    <!-- Main screen -->
+    <string name="search_hint">Search streams…</string>
+    <string name="no_streams_found">No streams found</string>
+    <string name="fab_add_stream">Add Stream</string>
+
+    <!-- Stream list item -->
+    <string name="label_video">VIDEO</string>
+    <string name="label_audio">AUDIO</string>
+    <string name="btn_play_desc">Play</string>
+    <string name="btn_delete_desc">Delete stream</string>
+
+    <!-- Add stream dialog -->
+    <string name="dialog_add_title">Add Custom Stream</string>
+    <string name="hint_stream_title">Stream title (optional)</string>
+    <string name="hint_stream_url">Stream URL (HLS, DASH, MP3, MP4…)</string>
+    <string name="label_stream_type">Stream type</string>
+    <string name="btn_video_type">🎬 Video</string>
+    <string name="btn_audio_type">🎵 Audio</string>
+    <string name="btn_play">Play</string>
+    <string name="btn_cancel">Cancel</string>
+    <string name="error_url_empty">Please enter a URL</string>
+    <string name="default_stream_title">Custom Stream</string>
+    <string name="custom_stream_desc">Custom stream</string>
+
+    <!-- Delete dialog -->
+    <string name="dialog_delete_title">Remove stream?</string>
+    <string name="dialog_delete_message">"%1$s" will be removed from the list.</string>
+    <string name="btn_remove">Remove</string>
+    <string name="toast_removed">"%1$s" removed</string>
+
+    <!-- Player -->
+    <string name="status_connecting">⏳ Connecting…</string>
+    <string name="status_buffering">⏳ Buffering…</string>
+    <string name="status_playing">▶ Playing</string>
+    <string name="status_paused">⏸ Paused</string>
+    <string name="status_ended">⏹ Ended</string>
+    <string name="status_idle">⏺ Idle</string>
+    <string name="status_error">❌ Error</string>
+    <string name="error_playback">Playback error: %1$s</string>
+    <string name="btn_back_desc">Back</string>
+    <string name="btn_pip_desc">Picture in Picture</string>
+
+    <!-- Player controls -->
+    <string name="btn_rewind_desc">Rewind</string>
+    <string name="btn_play_pause_desc">Play/Pause</string>
+    <string name="btn_forward_desc">Forward</string>
+
+    <string name="fab_import_stream">Import</string>
+    <string name="import_success">Imported %1$d stream(s)</string>
+    <string name="import_empty">No valid streams found in file</string>
+    <string name="import_error">Error reading file</string>
+    <string name="import_format_note">CSV format: type,title,url  (A=Audio, V=Video)</string>
+
+    <string name="dialog_import_title">Import Streams</string>
+    <string name="import_source_file">From local file</string>
+    <string name="import_source_url">From URL</string>
+    <string name="import_url_hint">Enter CSV file URL</string>
+    <string name="import_downloading">Downloading…</string>
+    <string name="btn_import">Import</string>
+
+    <string name="seed_desc_bbb">Open-source animated short · HLS stream</string>
+    <string name="seed_desc_classical">SomaFM – Drone Zone · ambient/classical</string>
+
+    <string name="error_service_connect">Could not connect to playback service</string>
+
+    <string name="fab_last_stream">Play Last Stream</string>
+    <string name="toast_no_last_stream">No recent stream found</string>
+
+    <string name="fab_remove_all">Remove All</string>
+    <string name="dialog_remove_all_title">Remove all streams?</string>
+    <string name="dialog_remove_all_message">All streams in the list will be permanently deleted.</string>
+    <string name="toast_all_removed">All streams removed</string>
+
+    <string name="menu_desc">More options</string>
+
+    <string name="notif_channel_name">Media Playback</string>
+    <string name="notif_channel_desc">Stream playback notification</string>
+    <string name="notif_playback_ready">Ready to play</string>
+</resources>

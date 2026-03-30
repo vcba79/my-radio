@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/menu_last_stream"
+        android:title="@string/fab_last_stream"
+        android:icon="@drawable/ic_history" />
+    <item android:id="@+id/menu_add_stream"
+        android:title="@string/fab_add_stream"
+        android:icon="@drawable/ic_add" />
+    <item android:id="@+id/menu_import"
+        android:title="@string/fab_import_stream"
+        android:icon="@drawable/ic_import" />
+    <item android:id="@+id/menu_remove_all"
+        android:title="@string/fab_remove_all"
+        android:icon="@drawable/ic_remove_all" />
+</menu>
