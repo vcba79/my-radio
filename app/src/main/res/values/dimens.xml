@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="player_top_padding">12dp</dimen>
+    <dimen name="list_top_padding">8dp</dimen>
 </resources>

@@ -100,6 +100,21 @@ public class MainActivity extends AppCompatActivity {
         ViewCompat.setOnApplyWindowInsetsListener(target, (v, windowInsets) -> {
             Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(v.getPaddingLeft(), insets.top, v.getPaddingRight(), v.getPaddingBottom());
+
+            // In landscape (sidebar layout), the RecyclerView is a sibling of the
+            // sidebar and also needs a top inset so its first items aren't hidden
+            // behind the status bar.
+            if (sidebar != null) {
+                View rv = findViewById(R.id.recyclerView);
+                if (rv != null) {
+                    rv.setPadding(
+                            rv.getPaddingLeft(),
+                            insets.top + getResources().getDimensionPixelSize(R.dimen.list_top_padding),
+                            rv.getPaddingRight(),
+                            rv.getPaddingBottom());
+                }
+            }
+
             return WindowInsetsCompat.CONSUMED;
         });
     }
@@ -403,8 +418,6 @@ public class MainActivity extends AppCompatActivity {
         }
         return s;
     }
-
-
 
     // ── Remove All ─────────────────────────────────────────────────────────────
 
