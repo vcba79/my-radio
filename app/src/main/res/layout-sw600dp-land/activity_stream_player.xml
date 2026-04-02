@@ -101,6 +101,18 @@
                 android:gravity="center"
                 android:layout_marginTop="8dp"
                 android:text="@string/status_connecting" />
+
+            <!-- Codec · Bitrate info line -->
+            <TextView
+                android:id="@+id/trackCodecInfo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/hint_color"
+                android:textSize="12sp"
+                android:fontFamily="monospace"
+                android:gravity="center"
+                android:layout_marginTop="6dp"
+                android:visibility="gone" />
         </LinearLayout>
 
         <!-- Divider -->

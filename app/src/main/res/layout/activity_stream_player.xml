@@ -1,11 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-  Unified stream player layout.
-  - videoSurface (FrameLayout): visible for VIDEO, gone for AUDIO
-  - audioPanel   (LinearLayout): visible for AUDIO, gone for VIDEO
-  - playerView (PlayerView): always present, surface_type="none" for audio so
-    ExoPlayer controls render without a video surface when in audio mode.
--->
 <FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -107,6 +100,18 @@
                 android:gravity="center"
                 android:layout_marginTop="8dp"
                 android:text="@string/status_connecting" />
+
+            <!-- Codec · Bitrate info line -->
+            <TextView
+                android:id="@+id/trackCodecInfo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/hint_color"
+                android:textSize="14sp"
+                android:fontFamily="monospace"
+                android:gravity="center"
+                android:layout_marginTop="6dp"
+                android:visibility="gone" />
         </LinearLayout>
 
         <!-- Audio transport controls via a dedicated PlayerView (no surface) -->
@@ -155,8 +160,6 @@
             android:orientation="vertical"
             android:paddingHorizontal="8dp">
 
-            <!-- Title/description shown in top bar only for VIDEO;
-                 audio mode has its own larger title block below -->
             <TextView
                 android:id="@+id/videoTitle"
                 android:layout_width="wrap_content"
