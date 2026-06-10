@@ -1,6 +1,6 @@
 # My Radio
 
-A Java-based Android application for streaming and playing radio stations.
+A Java-based Android application for streaming and playing radio stations. Tunein does not support android 8 anymore and Radio Garden take minutes to load on my headunit. I need a radio app running smoothly on my resource limited headunit without advertisement. That is why this project created.
 
 ## Overview
 
