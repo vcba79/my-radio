@@ -14,7 +14,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.OptIn;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -25,8 +24,10 @@ import androidx.media3.common.MediaItem;
 import androidx.media3.common.MediaMetadata;
 import androidx.media3.common.PlaybackException;
 import androidx.media3.common.Player;
-import androidx.media3.common.Tracks;
+import androidx.media3.common.util.UnstableApi;
 import androidx.media3.session.MediaController;
+import androidx.media3.session.SessionCommand;
+import androidx.media3.session.SessionResult;
 import androidx.media3.session.SessionToken;
 import androidx.media3.ui.PlayerView;
 
@@ -36,12 +37,11 @@ import com.google.common.util.concurrent.MoreExecutors;
 /**
  * Stream player activity.
  *
- * Playback is owned by {@link PlaybackService} (a MediaSessionService).
- * This activity connects a {@link MediaController} to the service so that:
- *   - Audio/video keeps playing when the activity is backgrounded.
- *   - The system media notification shows transport controls.
- *   - Reconnecting (e.g. rotating screen) picks up the running session.
+ * Codec/bitrate is fetched via a custom MediaSession command so we read the
+ * data from the real ExoPlayer instance inside PlaybackService, not from the
+ * MediaController IPC proxy (where Format.bitrate is often NO_VALUE).
  */
+@UnstableApi
 public class StreamPlayerActivity extends AppCompatActivity {
 
     // ── Views ──────────────────────────────────────────────────────────────────
@@ -62,7 +62,7 @@ public class StreamPlayerActivity extends AppCompatActivity {
     private StreamItem  streamItem;
     private boolean     isVideo;
 
-    // ── Media3 controller (talks to PlaybackService) ───────────────────────────
+    // ── Media3 ────────────────────────────────────────────────────────────────
     private ListenableFuture<MediaController> controllerFuture;
     private MediaController                   controller;
 
@@ -92,7 +92,6 @@ public class StreamPlayerActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        // Detach PlayerView from controller but leave service running
         detachPlayerViews();
         releaseController();
     }
@@ -106,7 +105,6 @@ public class StreamPlayerActivity extends AppCompatActivity {
     // ── Service connection ─────────────────────────────────────────────────────
 
     private void connectToService() {
-        // Explicitly start the service before connecting the controller.
         android.content.Intent serviceIntent =
                 new android.content.Intent(this, PlaybackService.class);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -131,21 +129,15 @@ public class StreamPlayerActivity extends AppCompatActivity {
         }, MoreExecutors.directExecutor());
     }
 
-    /**
-     * Called once the MediaController is connected to PlaybackService.
-     * Attaches the controller to the UI and starts playback if needed.
-     */
     private void onControllerReady() {
         if (controller == null || streamItem == null) return;
 
-        // Attach controller to the correct PlayerView
         if (isVideo) {
             videoPlayerView.setPlayer(controller);
         } else {
             audioControlsView.setPlayer(controller);
         }
 
-        // Observe playback state for the status label and track info
         controller.addListener(new Player.Listener() {
             @Override
             public void onPlaybackStateChanged(int state) {
@@ -158,7 +150,8 @@ public class StreamPlayerActivity extends AppCompatActivity {
                         progressBar.setVisibility(View.GONE);
                         setStatus(getString(controller.isPlaying()
                                 ? R.string.status_playing : R.string.status_paused));
-                        updateTrackCodecInfo();
+                        // Ask the service for real format data now that rendering has started
+                        requestTrackInfoFromService();
                         break;
                     case Player.STATE_ENDED:
                         progressBar.setVisibility(View.GONE);
@@ -174,11 +167,6 @@ public class StreamPlayerActivity extends AppCompatActivity {
             @Override
             public void onIsPlayingChanged(boolean playing) {
                 setStatus(getString(playing ? R.string.status_playing : R.string.status_paused));
-            }
-
-            @Override
-            public void onTracksChanged(@NonNull Tracks tracks) {
-                updateTrackCodecInfo();
             }
 
             @Override
@@ -206,57 +194,56 @@ public class StreamPlayerActivity extends AppCompatActivity {
     }
 
     /**
-     * Reads the selected audio (or video) track's Format and updates
-     * the codec/bitrate line below the album art.
-     *
-     * Shows e.g.  "AAC-LC · 128 kbps"  or  "MP3 · 320 kbps"
-     * The view stays hidden if no format info is available yet.
+     * Sends a custom command to PlaybackService asking for the real
+     * audio/video Format (codec string + bitrate) from ExoPlayer directly.
+     * The result is delivered on the main thread via the ListenableFuture.
      */
-    @OptIn(markerClass = androidx.media3.common.util.UnstableApi.class)
-    private void updateTrackCodecInfo() {
-        if (trackCodecInfo == null || controller == null) return;
-
-        Format format = null;
-
-        // Walk all selected track groups to find the first audio format
-        Tracks tracks = controller.getCurrentTracks();
-        for (Tracks.Group group : tracks.getGroups()) {
-            // C.TRACK_TYPE_AUDIO = 1, C.TRACK_TYPE_VIDEO = 2
-            if (group.getType() != androidx.media3.common.C.TRACK_TYPE_AUDIO &&
-                group.getType() != androidx.media3.common.C.TRACK_TYPE_VIDEO) continue;
-            for (int i = 0; i < group.length; i++) {
-                if (group.isTrackSelected(i)) {
-                    format = group.getTrackFormat(i);
-                    break;
+    private void requestTrackInfoFromService() {
+        if (controller == null) return;
+        SessionCommand cmd = new SessionCommand(PlaybackService.CMD_GET_TRACK_INFO, Bundle.EMPTY);
+        ListenableFuture<SessionResult> future =
+                controller.sendCustomCommand(cmd, Bundle.EMPTY);
+        future.addListener(() -> {
+            try {
+                SessionResult result = future.get();
+                if (result.resultCode == SessionResult.RESULT_SUCCESS
+                        && result.extras != null) {
+                    String codecRaw = result.extras.getString(PlaybackService.KEY_CODEC, "");
+                    int    bps      = result.extras.getInt(PlaybackService.KEY_BITRATE,
+                                                           Format.NO_VALUE);
+                    showTrackInfo(codecRaw, bps);
                 }
+            } catch (Exception e) {
+                // Service not yet ready or disconnected — hide the field silently
+                if (trackCodecInfo != null) trackCodecInfo.setVisibility(View.GONE);
             }
-            if (format != null) break;
-        }
+        }, MoreExecutors.directExecutor());
+    }
 
-        if (format == null) {
+    /**
+     * Builds and displays the codec · bitrate line.
+     * Called on the main thread via the ListenableFuture listener.
+     */
+    private void showTrackInfo(String codecRaw, int bps) {
+        if (trackCodecInfo == null) return;
+
+        String codec   = formatCodecLabel(codecRaw);
+        String bitrate = (bps != Format.NO_VALUE && bps > 0)
+                ? (Math.round(bps / 1000f)) + " kbps"
+                : null;
+
+        if (codec.equals("Unknown") && bitrate == null) {
             trackCodecInfo.setVisibility(View.GONE);
             return;
         }
 
-        // Codec label — trim to readable short name
-        String codec = formatCodecLabel(format.codecs);
-
-        // Bitrate — prefer format.bitrate, fall back to peakBitrate
-        int bps = format.bitrate != Format.NO_VALUE
-                ? format.bitrate
-                : format.peakBitrate;
-        String bitrate = bps != Format.NO_VALUE
-                ? (Math.round(bps / 1000f)) + " kbps"
-                : "? kbps";
-
-        String info = codec + "  ·  " + bitrate;
+        String info = bitrate != null ? codec + "  ·  " + bitrate : codec;
         trackCodecInfo.setText(info);
         trackCodecInfo.setVisibility(View.VISIBLE);
     }
 
     /**
-     * Converts a raw codec string (e.g. "mp4a.40.2", "mp4a.40.5", "mp3")
-     * into a short human-readable label (e.g. "AAC-LC", "HE-AAC", "MP3").
+     * Maps raw codec strings (e.g. "mp4a.40.2") to short readable labels.
      */
     private String formatCodecLabel(String raw) {
         if (raw == null || raw.isEmpty()) return "Unknown";
@@ -266,7 +253,7 @@ public class StreamPlayerActivity extends AppCompatActivity {
         if (s.startsWith("mp4a.40.5"))  return "HE-AAC";
         if (s.startsWith("mp4a.40.29")) return "HE-AACv2";
         if (s.startsWith("mp4a"))       return "AAC";
-        if (s.startsWith("mp3")  || s.equals(".mp3")) return "MP3";
+        if (s.startsWith("mp3") || s.equals(".mp3")) return "MP3";
         if (s.startsWith("opus"))       return "Opus";
         if (s.startsWith("vorbis"))     return "Vorbis";
         if (s.startsWith("flac"))       return "FLAC";
@@ -276,7 +263,6 @@ public class StreamPlayerActivity extends AppCompatActivity {
         if (s.startsWith("vp09"))       return "VP9";
         if (s.startsWith("vp08"))       return "VP8";
 
-        // Fallback: return upper-cased raw string, capped at 12 chars
         return raw.length() > 12 ? raw.substring(0, 12).toUpperCase() : raw.toUpperCase();
     }
 
